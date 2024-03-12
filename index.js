@@ -14,11 +14,12 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("views"));
 
 app.use("/user", userRoutes);
 
 sequelize
-  //   .sync({ force: true })
+  // .sync({ force: true })
   .sync()
   .then(() => {
     app.listen(port, () => {
