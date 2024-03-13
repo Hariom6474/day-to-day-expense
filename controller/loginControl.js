@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const path = require("path");
+const bcrypt = require("bcrypt");
 
 exports.getLoginpage = async (req, res, next) => {
   await res.sendFile(path.join(__dirname, "../views", "login.html"), (err) => {
@@ -22,26 +23,31 @@ function isStringInvalid(string) {
 
 exports.postLogin = async (req, res, next) => {
   try {
-    let email = req.body.email;
-    let password = req.body.password;
+    const { email, password } = req.body;
     // console.log(email, "@@@@@@");
     if (isStringInvalid(email) || isStringInvalid(password)) {
-      return res
-        .status(400)
-        .json({ error: "Bad parameters, something is missing." });
+      return res.status(400).json({
+        success: false,
+        error: "Bad parameters, something is missing.",
+      });
     }
     const user = await User.findOne({
       where: { email: email },
     });
     // console.log(user.email, "########");
     if (user && user.email && user.email.length > 0) {
-      if (user.password === password) {
-        return res.redirect("/user");
-      } else {
-        res
-          .status(401)
-          .json({ message: false, message: "Email already exists" });
-      }
+      bcrypt.compare(password, user.password, (err, result) => {
+        if (err) {
+          throw new Error("Something went wrong");
+        }
+        if (result === true) {
+          return res.redirect("/user");
+        } else {
+          res
+            .status(401)
+            .json({ success: false, message: "Password is wrong" });
+        }
+      });
     } else {
       res.status(404).json({ success: false, message: "user not found" });
     }

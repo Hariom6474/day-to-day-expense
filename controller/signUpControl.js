@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const bcrypt = require("bcrypt");
 
 exports.getSignUppage = async (req, res, next) => {
   await res.sendFile("signUp.html", { root: "views" });
@@ -14,9 +15,7 @@ function isStringInvalid(string) {
 
 exports.postSignUp = async (req, res, next) => {
   try {
-    let name = req.body.name;
-    let email = req.body.email;
-    let password = req.body.password;
+    const { name, email, password } = req.body;
     if (
       isStringInvalid(name) ||
       isStringInvalid(email) ||
@@ -32,13 +31,16 @@ exports.postSignUp = async (req, res, next) => {
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists" });
     } else {
-      const data = await User.create({
-        name: name,
-        email: email,
-        password: password,
+      bcrypt.hash(password, 10, async (err, hash) => {
+        console.log(err);
+        const data = await User.create({
+          name: name,
+          email: email,
+          password: hash,
+        });
+        console.log(data);
+        return res.redirect("/user/login");
       });
-      console.log(data);
-      return res.redirect("/user/login");
     }
   } catch (err) {
     console.log(err);
