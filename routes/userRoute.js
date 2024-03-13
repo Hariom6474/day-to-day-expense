@@ -1,7 +1,7 @@
 const express = require("express");
 const signUpController = require("../controller/signUpControl");
 const loginController = require("../controller/loginControl");
-const userController = require("../controller/user");
+const userController = require("../controller/userControl");
 const router = express.Router();
 
 router.get("/signUp", signUpController.getSignUppage);

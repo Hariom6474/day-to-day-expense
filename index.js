@@ -7,6 +7,7 @@ const port = 3000;
 
 const sequelize = require("./util/database");
 const userRoutes = require("./routes/userRoute");
+const mainRoutes = require("./routes/mainRoutes");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static("views"));
 
 app.use("/user", userRoutes);
+app.use("/user", mainRoutes);
 
 sequelize
   // .sync({ force: true })
