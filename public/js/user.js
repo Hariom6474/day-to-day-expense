@@ -9,13 +9,15 @@ async function addExpense(e) {
     category: category,
   };
   try {
+    const token = localStorage.getItem("token");
     const add = await axios.post(
       "http://localhost:3000/user/add-expense",
-      myObj
+      myObj,
+      { headers: { Authorization: token } }
     );
     // console.log(add);
     myObj = add.data;
-    console.log(myObj);
+    // console.log(myObj);
     createListItem(myObj);
   } catch (err) {
     console.log(err);
@@ -23,7 +25,6 @@ async function addExpense(e) {
 }
 
 function createListItem(myObj) {
-  let elem = JSON.stringify(myObj);
   let ulist = document.querySelector(".list-group");
   let li = document.createElement("li");
   li.className = "list-group-item mt-3";
@@ -64,8 +65,12 @@ function createListItem(myObj) {
 
 async function deleteExpense(ExpenseId, li) {
   try {
+    const token = localStorage.getItem("token");
     const del = await axios.delete(
-      `http://localhost:3000/user/delete-expense/${ExpenseId}`
+      `http://localhost:3000/user/delete-expense/${ExpenseId}`,
+      {
+        headers: { Authorization: token },
+      }
     );
     if (del) {
       removeUserFromScreen(li);
@@ -81,8 +86,11 @@ function removeUserFromScreen(li) {
 
 window.addEventListener("DOMContentLoaded", async () => {
   try {
-    const res = await axios.get("http://localhost:3000/user/get-expense");
-    console.log(res.data);
+    const token = localStorage.getItem("token");
+    const res = await axios.get("http://localhost:3000/user/get-expense", {
+      headers: { Authorization: token },
+    });
+    // console.log(res.data);
     for (let i = 0; i < res.data.length; i++) {
       createListItem(res.data[i]);
     }

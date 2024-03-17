@@ -15,10 +15,12 @@ exports.user = async (req, res, next) => {
 exports.postAddExpense = async (req, res, next) => {
   try {
     const { Expenseamount, description, category } = req.body;
+    const userId = req.user.id;
     const data = await Expense.create({
       Expenseamount: Expenseamount,
       description: description,
       category: category,
+      userId: userId,
     });
     res.status(201).json(data);
     console.log(data);
@@ -30,19 +32,25 @@ exports.postAddExpense = async (req, res, next) => {
 
 exports.getAddExpense = async (req, res, next) => {
   try {
-    const data = await Expense.findAll();
-    res.status(201).json(data);
+    const data = await Expense.findAll({ where: { userId: req.user.id } });
+    return res.status(200).json(data);
   } catch (err) {
     console.log(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err });
   }
 };
 
 exports.postDeleteExpense = async (req, res, next) => {
   try {
     const ExpenseId = req.params.id;
-    await Expense.destroy({ where: { id: ExpenseId } });
-    res.sendStatus(200);
+    const userId = req.user.id;
+    const expense = await Expense.findOne({ where: { id: ExpenseId, userId } });
+    if (expense) {
+      await expense.destroy();
+      res.sendStatus(200);
+    } else {
+      res.status(404).json({ error: "Expense not found" });
+    }
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: err });

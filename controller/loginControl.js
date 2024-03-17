@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const path = require("path");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 exports.getLoginpage = async (req, res, next) => {
   await res.sendFile(path.join(__dirname, "../views", "login.html"), (err) => {
@@ -41,7 +42,11 @@ exports.postLogin = async (req, res, next) => {
           throw new Error("Something went wrong");
         }
         if (result === true) {
-          return res.redirect("/user");
+          return res.status(200).json({
+            success: true,
+            message: "user logged in successfully",
+            token: generateAccessToken(user.id),
+          });
         } else {
           res
             .status(401)
@@ -56,3 +61,7 @@ exports.postLogin = async (req, res, next) => {
     res.status(500).json({ error: err });
   }
 };
+
+function generateAccessToken(id) {
+  return jwt.sign({ userId: id }, "89ac34nm7894cbn47bcccl47awbnc4a9483wbc");
+}
