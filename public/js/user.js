@@ -104,3 +104,42 @@ function clearFormInput() {
   document.getElementById("description").value = "";
   document.getElementById("category").value = "";
 }
+
+document.getElementById("rzp-button1").onclick = async function (e) {
+  const token = localStorage.getItem("token");
+  const response = await axios.get(
+    "http://localhost:3000/purchase/premium-membership",
+    {
+      headers: { Authorization: token },
+    }
+  );
+  // console.log(response);
+  var options = {
+    key: response.data.key_id, // Enter the Key ID generated from the Dashboard
+    order_id: response.data.order.id, // For one time payemnt
+    // this handler function will handle the success payment
+    handler: async function (response) {
+      const update = await axios.post(
+        "http://localhost:3000/purchase/updateTransactionStatus",
+        {
+          order_id: options.order_id,
+          payment_id: response.razorpay_payment_id,
+        },
+        {
+          headers: { Authorization: token },
+        }
+      );
+      if (update) {
+        document.getElementById("rzp-button1").style.visibility = "hidden";
+        document.getElementById("message").innerHTML = "Premium User";
+      }
+    },
+  };
+  var rzp1 = new Razorpay(options);
+  rzp1.open();
+  e.preventDefault();
+  rzp1.on("payment.failed", function (response) {
+    console.log(response);
+    alert(response.error.code, "Something went wrong");
+  });
+};

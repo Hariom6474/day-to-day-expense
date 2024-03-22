@@ -2,6 +2,7 @@ const User = require("../models/user");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 exports.getLoginpage = async (req, res, next) => {
   await res.sendFile(path.join(__dirname, "../views", "login.html"), (err) => {
@@ -63,5 +64,5 @@ exports.postLogin = async (req, res, next) => {
 };
 
 function generateAccessToken(id) {
-  return jwt.sign({ userId: id }, "89ac34nm7894cbn47bcccl47awbnc4a9483wbc");
+  return jwt.sign({ userId: id }, process.env.TOKEN_SECRET);
 }

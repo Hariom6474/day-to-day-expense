@@ -44,12 +44,14 @@ exports.postDeleteExpense = async (req, res, next) => {
   try {
     const ExpenseId = req.params.id;
     const userId = req.user.id;
-    const expense = await Expense.findOne({ where: { id: ExpenseId, userId } });
-    if (expense) {
-      await expense.destroy();
-      res.sendStatus(200);
+    const del = await Expense.destroy({ where: { id: ExpenseId, userId } });
+    if (del === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Expense does not belong to the user.",
+      });
     } else {
-      res.status(404).json({ error: "Expense not found" });
+      res.sendStatus(200);
     }
   } catch (err) {
     console.log(err);

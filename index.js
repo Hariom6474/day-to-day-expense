@@ -10,6 +10,8 @@ const userRoutes = require("./routes/userRoute");
 const mainRoutes = require("./routes/mainRoutes");
 const user = require("./models/user");
 const userExpense = require("./models/userExpense");
+const orders = require("./models/order");
+const purchaseRoutes = require("./routes/purchaseRoute");
 
 const app = express();
 
@@ -21,9 +23,13 @@ app.use(express.static("views"));
 
 app.use("/user", userRoutes);
 app.use("/user", mainRoutes);
+app.use("/purchase", purchaseRoutes);
 
 user.hasMany(userExpense);
 userExpense.belongsTo(user);
+
+user.hasMany(orders);
+orders.belongsTo(user);
 
 sequelize
   // .sync({ force: true })
