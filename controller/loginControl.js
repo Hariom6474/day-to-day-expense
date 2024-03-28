@@ -46,7 +46,7 @@ exports.postLogin = async (req, res, next) => {
           return res.status(200).json({
             success: true,
             message: "user logged in successfully",
-            token: generateAccessToken(user.id),
+            token: generateAccessToken(user.id, user.ispremiumuser),
           });
         } else {
           res
@@ -63,6 +63,6 @@ exports.postLogin = async (req, res, next) => {
   }
 };
 
-function generateAccessToken(id) {
-  return jwt.sign({ userId: id }, process.env.TOKEN_SECRET);
+function generateAccessToken(id, isPremiumUser) {
+  return jwt.sign({ userId: id, isPremiumUser }, process.env.TOKEN_SECRET);
 }

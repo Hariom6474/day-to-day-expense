@@ -84,16 +84,66 @@ function removeUserFromScreen(li) {
   li.parentNode.removeChild(li);
 }
 
+function parseJwt(token) {
+  var base64Url = token.split(".")[1];
+  var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  var jsonPayload = decodeURIComponent(
+    window
+      .atob(base64)
+      .split("")
+      .map(function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join("")
+  );
+  return JSON.parse(jsonPayload);
+}
+
+function showLeaderboard() {
+  const btnDiv = document.getElementById("btnLeaderboard");
+  const btn = document.createElement("input");
+  btn.type = "button";
+  btn.value = "Leaderboard";
+  btn.className = "btn btn-warning sm";
+  btnDiv.appendChild(btn);
+  btn.onclick = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        "http://localhost:3000/premium/showLeaderboard",
+        { headers: { Authorization: token } }
+      );
+      let leaderboardList = document.getElementById("leaderboardList");
+      leaderboardList.innerHTML +=
+        "<h1 style='color:#5d65fc;'>Leaderboard</h1>";
+      res.data.forEach((list) => {
+        leaderboardList.innerHTML += `<li>Name - ${list.name} Total Expense - ${
+          list.totalExpense || 0
+        } </li>`;
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
   try {
     const token = localStorage.getItem("token");
+    const parsedToken = parseJwt(token);
+    const ispremiumuser = parsedToken.isPremiumUser;
+    // console.log(ispremiumuser);
+    if (ispremiumuser) {
+      showPremium();
+      showLeaderboard();
+    }
     const res = await axios.get("http://localhost:3000/user/get-expense", {
       headers: { Authorization: token },
     });
     // console.log(res.data);
-    for (let i = 0; i < res.data.length; i++) {
-      createListItem(res.data[i]);
-    }
+    res.data.forEach((item) => {
+      createListItem(item);
+    });
   } catch (err) {
     console.error(err);
   }
@@ -130,8 +180,8 @@ document.getElementById("rzp-button1").onclick = async function (e) {
         }
       );
       if (update) {
-        document.getElementById("rzp-button1").style.visibility = "hidden";
-        document.getElementById("message").innerHTML = "Premium User";
+        showPremium();
+        localStorage.setItem("token", update.data.token);
       }
     },
   };
@@ -143,3 +193,8 @@ document.getElementById("rzp-button1").onclick = async function (e) {
     alert(response.error.code, "Something went wrong");
   });
 };
+
+function showPremium() {
+  document.getElementById("rzp-button1").style.visibility = "hidden";
+  document.getElementById("message").innerHTML = "Premium User";
+}
