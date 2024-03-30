@@ -18,6 +18,8 @@ async function addExpense(e) {
     // console.log(add);
     myObj = add.data;
     // console.log(myObj);
+    clearLeaderboardList();
+    leaderboardDisplayed = false;
     createListItem(myObj);
   } catch (err) {
     console.log(err);
@@ -50,6 +52,8 @@ function createListItem(myObj) {
     const ExpenseId = myObj.id;
     if (li && ExpenseId) {
       deleteExpense(ExpenseId, li);
+      clearLeaderboardList();
+      leaderboardDisplayed = false;
     }
   };
   editbtn.onclick = (e) => {
@@ -99,6 +103,8 @@ function parseJwt(token) {
   return JSON.parse(jsonPayload);
 }
 
+let leaderboardDisplayed = false;
+
 function showLeaderboard() {
   const btnDiv = document.getElementById("btnLeaderboard");
   const btn = document.createElement("input");
@@ -108,19 +114,25 @@ function showLeaderboard() {
   btnDiv.appendChild(btn);
   btn.onclick = async () => {
     try {
+      if (leaderboardDisplayed) {
+        return;
+      }
       const token = localStorage.getItem("token");
       const res = await axios.get(
         "http://localhost:3000/premium/showLeaderboard",
         { headers: { Authorization: token } }
       );
       let leaderboardList = document.getElementById("leaderboardList");
-      leaderboardList.innerHTML +=
-        "<h1 style='color:#5d65fc;'>Leaderboard</h1>";
+      if (!leaderboardList.querySelector("h1")) {
+        leaderboardList.innerHTML +=
+          "<h1 style='color:#5d65fc;'>Leaderboard</h1>";
+      }
       res.data.forEach((list) => {
         leaderboardList.innerHTML += `<li>Name - ${list.name} Total Expense - ${
-          list.totalExpense || 0
+          list.totalExpenses || 0
         } </li>`;
       });
+      leaderboardDisplayed = true;
     } catch (err) {
       console.log(err);
     }
@@ -153,6 +165,10 @@ function clearFormInput() {
   document.getElementById("Expenseamount").value = "";
   document.getElementById("description").value = "";
   document.getElementById("category").value = "";
+}
+
+function clearLeaderboardList() {
+  document.getElementById("leaderboardList").value = "";
 }
 
 document.getElementById("rzp-button1").onclick = async function (e) {
