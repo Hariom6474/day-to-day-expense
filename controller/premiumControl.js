@@ -19,7 +19,7 @@ exports.getLeaderboard = async (req, res, next) => {
       //     "totalExpense",
       //   ],
       // ],
-      group: ["User.id"],
+      // group: ["User.id"],
       order: [["totalExpenses", "DESC"]],
     });
     res.status(200).json(list);
