@@ -2,8 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
+require("dotenv").config();
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const sequelize = require("./util/database");
 const userRoutes = require("./routes/userRoute");
