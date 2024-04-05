@@ -23,7 +23,8 @@
     "nodemailer": "^6.9.13",
     "nodemon": "^3.1.0",
     "razorpay": "^2.9.2",
-    "sequelize": "^6.37.1"
+    "sequelize": "^6.37.1",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "sib-api-v3-sdk": "^8.5.0"
