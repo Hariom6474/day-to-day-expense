@@ -26,45 +26,107 @@ async function addExpense(e) {
   }
 }
 
+let hasAddedHeading = false;
+
 function createListItem(myObj) {
-  let ulist = document.querySelector(".list-group");
-  let li = document.createElement("li");
-  li.className = "list-group-item mt-3";
-  let delbtn = document.createElement("input");
+  const tableBody = document.querySelector("tbody");
+  const tableRow = document.createElement("tr");
+  tableRow.classList.add("border", "border-dark", "border-2");
+  const extractedDate = extractDate(myObj.updatedAt);
+  const dateCell = document.createElement("td");
+  dateCell.textContent = extractedDate;
+  dateCell.classList.add("expense-date");
+  dateCell.classList.add("border", "border-dark", "border-2");
+
+  if (!hasAddedHeading) {
+    const tableHead = document.createElement("thead");
+    const headingRow = document.createElement("tr");
+    const headingDate = document.createElement("th");
+    headingDate.textContent = "Date";
+    headingDate.classList.add(
+      "expense-date",
+      "border",
+      "border-dark",
+      "border-2"
+    );
+    const headingAmount = document.createElement("th");
+    headingAmount.textContent = "Amount";
+    headingAmount.classList.add("border", "border-dark", "border-2");
+    const headingDescription = document.createElement("th");
+    headingDescription.textContent = "Description";
+    headingDescription.classList.add("border", "border-dark", "border-2");
+    const headingCategory = document.createElement("th");
+    headingCategory.textContent = "Category";
+    headingCategory.classList.add("border", "border-dark", "border-2");
+    const headingActions = document.createElement("th");
+    headingActions.textContent = "Actions";
+    headingActions.classList.add("border", "border-dark", "border-2");
+    headingDate.style.borderRight = "none";
+    headingAmount.style.borderRight = "2px solid black";
+    headingDescription.style.borderRight = "2px solid black";
+    headingCategory.style.borderRight = "2px solid black";
+    headingRow.appendChild(headingDate);
+    headingRow.appendChild(headingAmount);
+    headingRow.appendChild(headingDescription);
+    headingRow.appendChild(headingCategory);
+    headingRow.appendChild(headingActions);
+    tableHead.appendChild(headingRow);
+    const table = tableBody.parentElement;
+    table.insertBefore(tableHead, tableBody);
+    hasAddedHeading = true;
+  }
+
+  const amountCell = document.createElement("td");
+  amountCell.style.borderRight = "2px solid black";
+  amountCell.textContent = myObj.Expenseamount;
+  const descriptionCell = document.createElement("td");
+  descriptionCell.style.borderRight = "2px solid black";
+  descriptionCell.textContent = myObj.description;
+  const categoryCell = document.createElement("td");
+  categoryCell.style.borderRight = "2px solid black";
+  categoryCell.textContent = myObj.category;
+  const actionsCell = document.createElement("td");
+  const delbtn = document.createElement("button");
   delbtn.className = "btn btn-outline-danger btn-sm";
-  delbtn.type = "button";
-  delbtn.value = "Delete";
-  let editbtn = document.createElement("input");
+  delbtn.textContent = "Delete";
+  const editbtn = document.createElement("button");
   editbtn.className = "btn btn-outline-secondary btn-sm";
-  editbtn.type = "button";
-  editbtn.value = "Edit";
-  li.setAttribute("expense-item-id", myObj.id);
-  li.appendChild(
-    document.createTextNode(
-      `${myObj.Expenseamount} - ${myObj.description} - ${myObj.category} `
-    )
-  );
-  li.appendChild(delbtn);
-  li.appendChild(editbtn);
-  ulist.appendChild(li);
+  editbtn.textContent = "Edit";
+  actionsCell.appendChild(delbtn);
+  actionsCell.appendChild(editbtn);
+  tableRow.setAttribute("expense-item-id", myObj.id);
+  tableRow.insertBefore(dateCell, tableRow.firstChild);
+  tableRow.appendChild(amountCell);
+  tableRow.appendChild(descriptionCell);
+  tableRow.appendChild(categoryCell);
+  tableRow.appendChild(actionsCell);
+  tableBody.appendChild(tableRow);
   delbtn.onclick = (e) => {
-    let li = e.target.closest("li");
+    const tableRow = e.target.closest("tr");
     const ExpenseId = myObj.id;
-    if (li && ExpenseId) {
-      deleteExpense(ExpenseId, li);
+    if (tableRow && ExpenseId) {
+      deleteExpense(ExpenseId, tableRow);
       clearLeaderboardList();
       leaderboardDisplayed = false;
     }
   };
   editbtn.onclick = (e) => {
-    let li = e.target.closest("li");
+    const tableRow = e.target.closest("tr");
     const ExpenseId = myObj.id;
     document.getElementById("Expenseamount").value = myObj.Expenseamount;
     document.getElementById("description").value = myObj.description;
     document.getElementById("category").value = myObj.category;
-    deleteExpense(ExpenseId, li);
+    deleteExpense(ExpenseId, tableRow);
   };
   clearFormInput();
+}
+
+function extractDate(updatedAt) {
+  const date = new Date(updatedAt);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 async function deleteExpense(ExpenseId, li) {
