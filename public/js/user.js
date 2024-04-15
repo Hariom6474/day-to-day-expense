@@ -201,6 +201,39 @@ function showLeaderboard() {
   };
 }
 
+async function showDownloadButton() {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get("http://localhost:3000/user/download", {
+      headers: { Authorization: token },
+    });
+    if (response && response.status === 200) {
+      let downloadexpense = document.createElement("a");
+      downloadexpense.href = response.data.fileURL;
+      downloadexpense.download = "myexpense.csv";
+      downloadexpense.click();
+      // const downloaded = await axios.get(
+      //   "http://44.210.136.33:3000/expense/downloaded-expense",
+      //   { headers: { Authorization: token } }
+      // );
+
+      // let downloadedList = document.getElementById("downloadedexpense");
+      // downloadedList.innerHTML += "<h1>Downloaded Expenses</h1>";
+      // for (var i = 0; i < downloaded.data.downloadedExpenseData.length; i++) {
+      //   downloadedList.innerHTML += `<li><a href=${
+      //     downloaded.data.downloadedExpenseData[i]
+      //   }>File${i + 1}</a> Downloaded at - ${
+      //     downloaded.data.downloadedExpenseData[i].updatedAt
+      //   }</li>`;
+      // }
+    } else {
+      throw new Error(response.data.message);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
   try {
     const token = localStorage.getItem("token");
@@ -210,6 +243,8 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (ispremiumuser) {
       showPremium();
       showLeaderboard();
+      // showDownloadButton();
+      document.getElementById("downloadexpense").style.visibility = "visible";
     }
     const res = await axios.get("http://localhost:3000/user/get-expense", {
       headers: { Authorization: token },

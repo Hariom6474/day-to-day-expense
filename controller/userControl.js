@@ -2,6 +2,9 @@ const path = require("path");
 const Expense = require("../models/userExpense");
 const User = require("../models/user");
 const sequelize = require("../util/database");
+const UserServices = require("../services/userServices");
+const S3 = require("../services/s3service");
+require("dotenv").config();
 
 exports.user = async (req, res, next) => {
   await res.sendFile(path.join(__dirname, "../views", "user.html"), (err) => {
@@ -93,5 +96,20 @@ exports.postDeleteExpense = async (req, res, next) => {
     console.log(err);
     await t.rollback();
     res.status(500).json({ error: err });
+  }
+};
+
+exports.download = async (req, res, next) => {
+  try {
+    const expenses = await UserServices.getExpenses(req);
+    // console.log(expenses);
+    const string = JSON.stringify(expenses);
+    const userId = req.user.id;
+    const filename = `myexpense${userId}/${new Date()}.csv`;
+    const fileURL = await S3.uploadToS3(string, filename);
+    res.status(200).json({ fileURL, success: true });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, error: err });
   }
 };
