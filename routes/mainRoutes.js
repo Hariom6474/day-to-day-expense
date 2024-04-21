@@ -20,5 +20,10 @@ router.delete(
   userControl.postDeleteExpense
 );
 router.get("/download", userAuthentication.authenticate, userControl.download);
+router.get(
+  "/downloaded-expense",
+  userAuthentication.authenticate,
+  userControl.downloadedExpense
+);
 
 module.exports = router;

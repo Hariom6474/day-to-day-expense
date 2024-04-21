@@ -47,9 +47,33 @@
             </div>
             <button type="submit" class="btn btn-outline-secondary btn-lg">Add Expense</button>
         </form>
-        <table class="table">
-            <tbody></tbody>
+        <table class="table" id="expenseTable">
+            <tbody id="expenseBody"></tbody>
         </table>
+        <div class="container">
+            <!-- <div class="row justify-content-center">
+                <div class="col-6 col-md-3">
+                    <label for="rowPerPage" class="form-label">Row per page:</label>
+                    <select id="rowPerPage" class="form-select form-select-sm">
+                        <option value="2">2</option>
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                    </select>
+                    <div class="text-center mt-1">
+                        <button id="rowbtn" type="submit" class="btn btn-primary">Show</button>
+                    </div>
+                </div>
+            </div> -->
+            <div class="row justify-content-center mt-3">
+                <div class="col-auto">
+                    <div class="pagination">
+                        <button class="btn btn-primary btn-sm me-2" style="height: 2rem;" id="btn1">prev</button>
+                        <ul class="pagination" id="pagination"></ul>
+                        <button class="btn btn-primary btn-sm ms-2" style="height: 2rem;" id="btn2">next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <ul class="list-group" id="leaderboardList"></ul>
         <ul class="list-group" id="downloadedexpense"></ul>
     </div>

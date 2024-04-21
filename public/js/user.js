@@ -207,30 +207,29 @@ async function showDownloadButton() {
     const response = await axios.get("http://localhost:3000/user/download", {
       headers: { Authorization: token },
     });
-    if (response && response.status === 200) {
+    if (response.status === 200) {
       let downloadexpense = document.createElement("a");
       downloadexpense.href = response.data.fileURL;
       downloadexpense.download = "myexpense.csv";
       downloadexpense.click();
-      // const downloaded = await axios.get(
-      //   "http://44.210.136.33:3000/expense/downloaded-expense",
-      //   { headers: { Authorization: token } }
-      // );
-
-      // let downloadedList = document.getElementById("downloadedexpense");
-      // downloadedList.innerHTML += "<h1>Downloaded Expenses</h1>";
-      // for (var i = 0; i < downloaded.data.downloadedExpenseData.length; i++) {
-      //   downloadedList.innerHTML += `<li><a href=${
-      //     downloaded.data.downloadedExpenseData[i]
-      //   }>File${i + 1}</a> Downloaded at - ${
-      //     downloaded.data.downloadedExpenseData[i].updatedAt
-      //   }</li>`;
-      // }
     } else {
       throw new Error(response.data.message);
     }
+    const downloaded = await axios.get(
+      "http://localhost:3000/user/downloaded-expense",
+      {
+        headers: { Authorization: token },
+      }
+    );
+    let downloadedListHTML = "<h1>Downloaded Expenses</h1>";
+    downloaded.data.downloadedExpenseData.forEach((item) => {
+      const datePart = item.updatedAt.slice(0, 10);
+      downloadedListHTML += `<li>${datePart} -> <a href="${item.fileURL}" download>Download File</a></li>`;
+    });
+    let downloadedList = document.getElementById("downloadedexpense");
+    downloadedList.innerHTML = downloadedListHTML;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 }
 
@@ -239,6 +238,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("token");
     const parsedToken = parseJwt(token);
     const ispremiumuser = parsedToken.isPremiumUser;
+    const page = 1;
     // console.log(ispremiumuser);
     if (ispremiumuser) {
       showPremium();
@@ -246,17 +246,77 @@ window.addEventListener("DOMContentLoaded", async () => {
       // showDownloadButton();
       document.getElementById("downloadexpense").style.visibility = "visible";
     }
-    const res = await axios.get("http://localhost:3000/user/get-expense", {
-      headers: { Authorization: token },
-    });
-    // console.log(res.data);
-    res.data.forEach((item) => {
-      createListItem(item);
-    });
+    const res = await axios.get(
+      `http://localhost:3000/user/get-expense?page=${page}`,
+      {
+        headers: { Authorization: token },
+      }
+    );
+    // console.log(res.data.data[1]);
+    for (let i = 0; i < res.data.data.length; i++) {
+      createListItem(res.data.data[i]);
+    }
+    showPagination(res.data); // has to be outside the loop to prevent multiple get req
   } catch (err) {
     console.error(err);
   }
 });
+
+function showPagination({
+  currentPage,
+  hasNextPage,
+  nextPage,
+  hasPrevPage,
+  prevPage,
+  lastPage,
+}) {
+  const prevBtn = document.getElementById("btn1");
+  const nextBtn = document.getElementById("btn2");
+  prevBtn.style.visibility = "hidden";
+  nextBtn.style.visibility = "hidden";
+  if (hasPrevPage) {
+    prevBtn.style.visibility = "visible";
+    btn1.addEventListener("click", () => {
+      getProducts(prevPage);
+    });
+  }
+  const pagination = document.getElementById("pagination");
+  const a = document.createElement("a");
+  a.className = "page-item";
+  pagination.innerHTML = `<h3>${currentPage}</h3>`;
+  a.addEventListener("click", () => {
+    getProducts(currentPage);
+  });
+  pagination.appendChild(a);
+  if (hasNextPage) {
+    nextBtn.style.visibility = "visible";
+    btn2.addEventListener("click", () => {
+      getProducts(nextPage);
+    });
+  }
+}
+
+async function getProducts(page) {
+  const token = localStorage.getItem("token");
+  const res = await axios.get(
+    `http://localhost:3000/user/get-expense?page=${page}`,
+    {
+      headers: { Authorization: token },
+    }
+  );
+  removeAllExpense();
+  for (let i = 0; i < res.data.data.length; i++) {
+    createListItem(res.data.data[i]);
+  }
+  showPagination(res.data);
+}
+
+function removeAllExpense() {
+  const expenseBody = document.getElementById("expenseBody");
+  while (expenseBody.hasChildNodes()) {
+    expenseBody.removeChild(expenseBody.firstChild);
+  }
+}
 
 function clearFormInput() {
   document.getElementById("Expenseamount").value = "";
