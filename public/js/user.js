@@ -233,12 +233,21 @@ async function showDownloadButton() {
   }
 }
 
+const page = 1;
+const rowPerPage = document.getElementById("rowPerPage");
+const rowBtn = document.getElementById("rowbtn");
+rowBtn.addEventListener("click", () => {
+  localStorage.setItem("rowPerPage", rowPerPage.value);
+  removeAllExpense();
+  getProducts(page);
+});
+
 window.addEventListener("DOMContentLoaded", async () => {
   try {
     const token = localStorage.getItem("token");
     const parsedToken = parseJwt(token);
     const ispremiumuser = parsedToken.isPremiumUser;
-    const page = 1;
+    const row = localStorage.getItem("rowPerPage") || rowPerPage.value;
     // console.log(ispremiumuser);
     if (ispremiumuser) {
       showPremium();
@@ -247,7 +256,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("downloadexpense").style.visibility = "visible";
     }
     const res = await axios.get(
-      `http://localhost:3000/user/get-expense?page=${page}`,
+      `http://localhost:3000/user/get-expense?page=${page}&rowPerPage=${row}`,
       {
         headers: { Authorization: token },
       }
@@ -298,8 +307,9 @@ function showPagination({
 
 async function getProducts(page) {
   const token = localStorage.getItem("token");
+  const row = localStorage.getItem("rowPerPage") || rowPerPage.value;
   const res = await axios.get(
-    `http://localhost:3000/user/get-expense?page=${page}`,
+    `http://localhost:3000/user/get-expense?page=${page}&rowPerPage=${row}`,
     {
       headers: { Authorization: token },
     }
