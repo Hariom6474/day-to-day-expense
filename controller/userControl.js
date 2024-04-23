@@ -55,10 +55,6 @@ exports.postAddExpense = async (req, res, next) => {
 exports.getAddExpense = async (req, res, next) => {
   try {
     const itemsPerPage = parseInt(req.query.rowPerPage) || 5;
-    console.log(
-      itemsPerPage,
-      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-    );
     const totalItem = await req.user.countExpenses();
     const page = +req.query.page || 1;
     const data = await Expense.findAll({
