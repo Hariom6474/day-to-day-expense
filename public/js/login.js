@@ -8,7 +8,7 @@ async function login(e) {
   };
   try {
     // alert("Logged in Successfully.");
-    const log = await axios.post("http://localhost:3000/user/login", myObj);
+    const log = await axios.post("http://13.201.68.221:3000/user/login", myObj);
     clear();
     localStorage.setItem("token", log.data.token);
     // console.log(log, "post");

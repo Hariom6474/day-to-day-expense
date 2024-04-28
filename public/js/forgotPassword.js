@@ -5,7 +5,7 @@ async function forgotPassword(e) {
   };
   try {
     const log = await axios.post(
-      "http://localhost:3000/password/forgotPassword",
+      "http://13.201.68.221:3000/password/forgotPassword",
       myObj
     );
     // console.log(log);

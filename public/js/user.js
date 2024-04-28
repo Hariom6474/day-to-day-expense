@@ -11,7 +11,7 @@ async function addExpense(e) {
   try {
     const token = localStorage.getItem("token");
     const add = await axios.post(
-      "http://localhost:3000/user/add-expense",
+      "http://13.201.68.221:3000/user/add-expense",
       myObj,
       { headers: { Authorization: token } }
     );
@@ -133,7 +133,7 @@ async function deleteExpense(ExpenseId, li) {
   try {
     const token = localStorage.getItem("token");
     const del = await axios.delete(
-      `http://localhost:3000/user/delete-expense/${ExpenseId}`,
+      `http://13.201.68.221:3000/user/delete-expense/${ExpenseId}`,
       {
         headers: { Authorization: token },
       }
@@ -181,7 +181,7 @@ function showLeaderboard() {
       }
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        "http://localhost:3000/premium/showLeaderboard",
+        "http://13.201.68.221:3000/premium/showLeaderboard",
         { headers: { Authorization: token } }
       );
       let leaderboardList = document.getElementById("leaderboardList");
@@ -204,7 +204,7 @@ function showLeaderboard() {
 async function showDownloadButton() {
   try {
     const token = localStorage.getItem("token");
-    const response = await axios.get("http://localhost:3000/user/download", {
+    const response = await axios.get("http://13.201.68.221:3000/user/download", {
       headers: { Authorization: token },
     });
     if (response.status === 200) {
@@ -216,7 +216,7 @@ async function showDownloadButton() {
       throw new Error(response.data.message);
     }
     const downloaded = await axios.get(
-      "http://localhost:3000/user/downloaded-expense",
+      "http://13.201.68.221:3000/user/downloaded-expense",
       {
         headers: { Authorization: token },
       }
@@ -248,24 +248,23 @@ window.addEventListener("DOMContentLoaded", async () => {
     const parsedToken = parseJwt(token);
     const ispremiumuser = parsedToken.isPremiumUser;
     const row = localStorage.getItem("rowPerPage") || rowPerPage.value;
-    // console.log(ispremiumuser);
     if (ispremiumuser) {
       showPremium();
       showLeaderboard();
-      // showDownloadButton();
       document.getElementById("downloadexpense").style.visibility = "visible";
     }
     const res = await axios.get(
-      `http://localhost:3000/user/get-expense?page=${page}&rowPerPage=${row}`,
+      `http://13.201.68.221:3000/user/get-expense?page=${page}&rowPerPage=${row}`,
       {
         headers: { Authorization: token },
       }
     );
-    // console.log(res.data.data[1]);
-    for (let i = 0; i < res.data.data.length; i++) {
-      createListItem(res.data.data[i]);
+    if (res) {
+      res.data.data.forEach((item) => {
+        createListItem(item);
+      });
+      showPagination(res.data); // has to be outside the loop to prevent multiple get req
     }
-    showPagination(res.data); // has to be outside the loop to prevent multiple get req
   } catch (err) {
     console.error(err);
   }
@@ -279,29 +278,32 @@ function showPagination({
   prevPage,
   lastPage,
 }) {
-  const prevBtn = document.getElementById("btn1");
-  const nextBtn = document.getElementById("btn2");
-  prevBtn.style.visibility = "hidden";
-  nextBtn.style.visibility = "hidden";
+  const pagination = document.getElementById("pagination");
+  pagination.innerHTML = "";
   if (hasPrevPage) {
-    prevBtn.style.visibility = "visible";
-    btn1.addEventListener("click", () => {
+    const pbtn = document.createElement("button");
+    pbtn.className = "page-item btn btn-outline-primary page-item me-2";
+    pbtn.innerHTML = prevPage;
+    pbtn.addEventListener("click", () => {
       getProducts(prevPage);
     });
+    pagination.appendChild(pbtn);
   }
-  const pagination = document.getElementById("pagination");
-  const a = document.createElement("a");
-  a.className = "page-item";
-  pagination.innerHTML = `<h3>${currentPage}</h3>`;
-  a.addEventListener("click", () => {
+  const cbtn = document.createElement("button");
+  cbtn.className = "page-item btn btn-outline-primary page-item me-2";
+  cbtn.innerHTML = currentPage;
+  cbtn.addEventListener("click", () => {
     getProducts(currentPage);
   });
-  pagination.appendChild(a);
+  pagination.appendChild(cbtn);
   if (hasNextPage) {
-    nextBtn.style.visibility = "visible";
-    btn2.addEventListener("click", () => {
+    const nbtn = document.createElement("button");
+    nbtn.className = "page-item btn btn-outline-primary page-item";
+    nbtn.innerHTML = nextPage;
+    nbtn.addEventListener("click", () => {
       getProducts(nextPage);
     });
+    pagination.appendChild(nbtn);
   }
 }
 
@@ -309,15 +311,15 @@ async function getProducts(page) {
   const token = localStorage.getItem("token");
   const row = localStorage.getItem("rowPerPage") || rowPerPage.value;
   const res = await axios.get(
-    `http://localhost:3000/user/get-expense?page=${page}&rowPerPage=${row}`,
+    `http://13.201.68.221:3000/user/get-expense?page=${page}&rowPerPage=${row}`,
     {
       headers: { Authorization: token },
     }
   );
   removeAllExpense();
-  for (let i = 0; i < res.data.data.length; i++) {
-    createListItem(res.data.data[i]);
-  }
+  res.data.data.forEach((item) => {
+    createListItem(item);
+  });
   showPagination(res.data);
 }
 
@@ -341,7 +343,7 @@ function clearLeaderboardList() {
 document.getElementById("rzp-button1").onclick = async function (e) {
   const token = localStorage.getItem("token");
   const response = await axios.get(
-    "http://localhost:3000/purchase/premium-membership",
+    "http://13.201.68.221:3000/purchase/premium-membership",
     {
       headers: { Authorization: token },
     }
@@ -353,7 +355,7 @@ document.getElementById("rzp-button1").onclick = async function (e) {
     // this handler function will handle the success payment
     handler: async function (response) {
       const update = await axios.post(
-        "http://localhost:3000/purchase/updateTransactionStatus",
+        "http://13.201.68.221:3000/purchase/updateTransactionStatus",
         {
           order_id: options.order_id,
           payment_id: response.razorpay_payment_id,
