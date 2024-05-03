@@ -9,7 +9,7 @@ async function getFormValue(e) {
     password: password,
   };
   try {
-    const add = await axios.post("http://13.201.68.221:3000/user/sign-up", myObj);
+    const add = await axios.post("/user/sign-up", myObj);
     clear();
     // console.log(add, "post");
     window.location.href = "/user/login";

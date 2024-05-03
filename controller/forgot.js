@@ -39,7 +39,7 @@ exports.postForgotPassword = async (req, res, next) => {
         subject: "Reset password link",
         text: "Link",
         html: `<h3>Click on this link to reset your password</h3>
-        <a href="http://localhost:3000/password/resetPassword/${id}">Reset password</a>`,
+        <a href="${process.env.WEBSITE}/password/resetPassword/${id}">Reset password</a>`,
       };
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {

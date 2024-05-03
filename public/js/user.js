@@ -10,11 +10,9 @@ async function addExpense(e) {
   };
   try {
     const token = localStorage.getItem("token");
-    const add = await axios.post(
-      "http://13.201.68.221:3000/user/add-expense",
-      myObj,
-      { headers: { Authorization: token } }
-    );
+    const add = await axios.post("/user/add-expense", myObj, {
+      headers: { Authorization: token },
+    });
     // console.log(add);
     myObj = add.data;
     // console.log(myObj);
@@ -132,12 +130,9 @@ function extractDate(updatedAt) {
 async function deleteExpense(ExpenseId, li) {
   try {
     const token = localStorage.getItem("token");
-    const del = await axios.delete(
-      `http://13.201.68.221:3000/user/delete-expense/${ExpenseId}`,
-      {
-        headers: { Authorization: token },
-      }
-    );
+    const del = await axios.delete(`/user/delete-expense/${ExpenseId}`, {
+      headers: { Authorization: token },
+    });
     if (del) {
       removeUserFromScreen(li);
     }
@@ -180,10 +175,9 @@ function showLeaderboard() {
         return;
       }
       const token = localStorage.getItem("token");
-      const res = await axios.get(
-        "http://13.201.68.221:3000/premium/showLeaderboard",
-        { headers: { Authorization: token } }
-      );
+      const res = await axios.get("/premium/showLeaderboard", {
+        headers: { Authorization: token },
+      });
       let leaderboardList = document.getElementById("leaderboardList");
       if (!leaderboardList.querySelector("h1")) {
         leaderboardList.innerHTML +=
@@ -204,7 +198,7 @@ function showLeaderboard() {
 async function showDownloadButton() {
   try {
     const token = localStorage.getItem("token");
-    const response = await axios.get("http://13.201.68.221:3000/user/download", {
+    const response = await axios.get("/user/download", {
       headers: { Authorization: token },
     });
     if (response.status === 200) {
@@ -215,12 +209,9 @@ async function showDownloadButton() {
     } else {
       throw new Error(response.data.message);
     }
-    const downloaded = await axios.get(
-      "http://13.201.68.221:3000/user/downloaded-expense",
-      {
-        headers: { Authorization: token },
-      }
-    );
+    const downloaded = await axios.get("/user/downloaded-expense", {
+      headers: { Authorization: token },
+    });
     let downloadedListHTML = "<h1>Downloaded Expenses</h1>";
     downloaded.data.downloadedExpenseData.forEach((item) => {
       const datePart = item.updatedAt.slice(0, 10);
@@ -254,7 +245,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("downloadexpense").style.visibility = "visible";
     }
     const res = await axios.get(
-      `http://13.201.68.221:3000/user/get-expense?page=${page}&rowPerPage=${row}`,
+      `/user/get-expense?page=${page}&rowPerPage=${row}`,
       {
         headers: { Authorization: token },
       }
@@ -311,7 +302,7 @@ async function getProducts(page) {
   const token = localStorage.getItem("token");
   const row = localStorage.getItem("rowPerPage") || rowPerPage.value;
   const res = await axios.get(
-    `http://13.201.68.221:3000/user/get-expense?page=${page}&rowPerPage=${row}`,
+    `/user/get-expense?page=${page}&rowPerPage=${row}`,
     {
       headers: { Authorization: token },
     }
@@ -342,12 +333,9 @@ function clearLeaderboardList() {
 
 document.getElementById("rzp-button1").onclick = async function (e) {
   const token = localStorage.getItem("token");
-  const response = await axios.get(
-    "http://13.201.68.221:3000/purchase/premium-membership",
-    {
-      headers: { Authorization: token },
-    }
-  );
+  const response = await axios.get("/purchase/premium-membership", {
+    headers: { Authorization: token },
+  });
   // console.log(response);
   var options = {
     key: response.data.key_id, // Enter the Key ID generated from the Dashboard
@@ -355,7 +343,7 @@ document.getElementById("rzp-button1").onclick = async function (e) {
     // this handler function will handle the success payment
     handler: async function (response) {
       const update = await axios.post(
-        "http://13.201.68.221:3000/purchase/updateTransactionStatus",
+        "/purchase/updateTransactionStatus",
         {
           order_id: options.order_id,
           payment_id: response.razorpay_payment_id,
@@ -383,3 +371,5 @@ function showPremium() {
   document.getElementById("rzp-button1").style.visibility = "hidden";
   document.getElementById("message").innerHTML = "Premium User";
 }
+
+// "mysql2": "^3.9.2",

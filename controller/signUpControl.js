@@ -38,7 +38,7 @@ exports.postSignUp = async (req, res, next) => {
           email: email,
           password: hash,
         });
-        console.log(data);
+        // console.log(data);
         return res.redirect("/user/login");
       });
     }
